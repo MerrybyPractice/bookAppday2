@@ -31,7 +31,7 @@ app.get('/', newSearch);
 app.post('/searches', createSearch);
 
 //Catch-all
-app.get('*', (request, response) => response.status(404).send('Get the HELL out of here NOW!'));
+app.get('*', (request, result) => result.status(404).send('Get the HELL out of here NOW!'));
 
 app.listen(PORT, () => console.log(`listening on PORT: ${PORT}`));
 
@@ -40,18 +40,18 @@ app.listen(PORT, () => console.log(`listening on PORT: ${PORT}`));
 
 //run out to get the books and bring them back from the data base
 
-function fetchBook(request, response) {
+function fetchBook(request, result) {
   let SQL = `SELECT * from books;`;
   
   return client.query(SQL)
     .then(results => {
       console.log(results);
-      response.render('index', {results: results.rows})
+     result.render('index', {results: results.rows})
     })
     .catch(handleError);
 }
 
-function getOneBook(request, response) {
+function getOneBook(request, result) {
   console.log('BOOK ID =', request.params.task_id);//TODO: refactor path for books
   
   let SQL = 'SELECT * FROM books WHERE id=$1;';
@@ -60,9 +60,9 @@ function getOneBook(request, response) {
   return client.query(SQL, values)
     .then(result => {
       console.log('single', result.rows[0]);
-      return response.render('pages/show', {book: result.rows[0]});
+      return result.render('pages/show', {book: result.rows[0]});
     })
-    .catch(err => handleError(err, response))
+    .catch(err => handleError(err, result))
 }
 
 // function handleError(error, response){
@@ -77,13 +77,13 @@ function handleError(error, result){
   
   
 //Note that ejs file is not required
-function newSearch(request, response) {
+function newSearch(request, results) {
   response.render('pages/index');
 }
   
 //No API key required
 //console.log request.body and request.body.search
-function createSearch(request, response) {
+function createSearch(request, results) {
   let url = `https:///www.googleapis.com/books/v1/volumes?q=in${request.body.search[1]}:${request.body.search[0]}`;
     
   console.log(request.body);
@@ -95,7 +95,7 @@ function createSearch(request, response) {
     
   superagent.get(url)
     .then(results => {
-      if (results.body.totalItems === 0) { handleError({status:404}, response);
+      if (results.body.totalItems === 0) { handleError({status:404}, results);
       }else{
         let bookArray = results.body.items.map((bookData) => {
       
@@ -103,11 +103,11 @@ function createSearch(request, response) {
           return bookArray;
         });
       }
+      const pathToBook = results.body.items.volumeInfo
+      return pathToBook
     })
     .then(results => results.render('pages/searches/show', { searchReults: bookArray }));
   //.catch(err => (handleError(err, response));
-  const pathToBook = results.body.items.volumeInfo
-  return pathToBook
 }
 
 //book constructor
