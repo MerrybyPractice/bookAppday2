@@ -1,9 +1,11 @@
 'use strict';
 
-require('dotenv').config();
 
 const express = require('express');
 const superagent = require('superagent');
+const pg = require('pg');
+
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT;
@@ -11,6 +13,12 @@ const PORT = process.env.PORT;
 //Middleware
 app.use(express.urlencoded({ extended : true}));
 app.use(express.static('public'));
+
+//Database Setup 
+
+const client = new pg.Client(process.enf.DATABASE_URL);
+client.connect()
+client.on('error', err => console.error(err));
 
 //Set the view engine for server-side templating
 app.set('view engine', 'ejs');
@@ -27,9 +35,6 @@ app.get('*', (request, response) => response.status(404).send('Get the HELL out 
 
 app.listen(PORT, () => console.log(`listening on PORT: ${PORT}`));
 
-//Helper
-
-client.on('error', err => console.error(err))
 
 function handleError(err, result){
   console.error(err);
@@ -67,6 +72,8 @@ function createSearch(request, response) {
     .catch(err => (handleError(err, response));
   }
 
+//Helper Functions: 
+
 //book constructor
 
 let pathToBook = response.body.items.volumeInfo
@@ -79,4 +86,8 @@ function Book(bookArray) {
   this.authors = pathToBook.authors || 'There is no one who takes credit for this work.';
   this.isbn10 = pathToBook.industryIdentifiers[0].identifiers || 'This book was published before 2007 and no one has wanted to republish it after.This book was published after 2007!';
   this.isbn13 = pathToBook.industryIdentifiers[1].identifiers || 'This book was published after 2007. Has anything good happened after 2007, really?';
+}
+
+function fetchBook(request, response) {
+  let SQL = `SELECT * from `
 }
