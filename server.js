@@ -1,12 +1,13 @@
 'use strict';
 
+require('dotenv').config();
+
 //dependencies => update as new are added
 const express = require('express');
 const superagent = require('superagent');
 const pg = require('pg');
 
 //App set up
-require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT;
 
@@ -16,7 +17,7 @@ app.use(express.static('public'));
 
 //Database Setup
 
-const client = new pg.Client(process.enf.DATABASE_URL);
+const client = new pg.Client(process.env.DATABASE_URL);
 client.connect()
 client.on('error', err => console.error(err));
 
@@ -40,65 +41,66 @@ app.listen(PORT, () => console.log(`listening on PORT: ${PORT}`));
 
 //run out to get the books and bring them back from the data base
 
-function fetchBook(request, result) {
-  let SQL = `SELECT * from books;`;
-  
-  return client.query(SQL)
-    .then(results => {
-      console.log(results);
-     result.render('index', {results: results.rows})
-    })
-    .catch(handleError);
-}
+// function fetchBook(request, result) {
+//   let SQL = `SELECT * from books;`;
 
-function getOneBook(request, result) {
-  console.log('BOOK ID =', request.params.task_id);//TODO: refactor path for books
-  
-  let SQL = 'SELECT * FROM books WHERE id=$1;';
-  let values = [request.params.task_id]; //TODO: refactor path for books
-  
-  return client.query(SQL, values)
-    .then(result => {
-      console.log('single', result.rows[0]);
-      return result.render('pages/show', {book: result.rows[0]});
-    })
-    .catch(err => handleError(err, result))
-}
+//   return client.query(SQL)
+//     .then(results => {
+//       console.log(results);
+//      result.render('index', {results: results.rows})
+//     })
+//     .catch(handleError);
+// }
+
+// function getOneBook(request, result) {
+//   console.log('BOOK ID =', request.params.task_id);//TODO: refactor path for books
+
+//   let SQL = 'SELECT * FROM books WHERE id=$1;';
+//   let values = [request.params.task_id]; //TODO: refactor path for books
+
+//   return client.query(SQL, values)
+//     .then(result => {
+//       console.log('single', result.rows[0]);
+//       return result.render('pages/show', {book: result.rows[0]});
+//     })
+//     .catch(err => handleError(err, result))
+// }
 
 // function handleError(error, response){
 //   response.render('pages/show', {error: 'Thats an error.'})
 //   if
 // }
-  
+
 function handleError(error, result){
   console.error(error);
   if (result) result.status(500).send('Thats an error. So very sorry, something went WRONG.');
 }
-  
-  
-//Note that ejs file is not required
-function newSearch(request, results) {
-  response.render('pages/index');
-}
-  
+
+
+// //Note that ejs file is not required
+// function newSearch(request, results) {
+//   results.render('pages/index');
+// }
+
 //No API key required
 //console.log request.body and request.body.search
 function createSearch(request, results) {
-  let url = `https:///www.googleapis.com/books/v1/volumes?q=in${request.body.search[1]}:${request.body.search[0]}`;
-    
-  console.log(request.body);
-    
-  if (request.body.search[1] === 'title') {url += `+intitle:${request.body.search[0]}`;}
-  if (request.body.search[1] === 'author') {url += `+inauthor:${request.body.seach[0]}`;}
-    
+  let url = `https:///www.googleapis.com/books/v1/volumes?q=in`;
   console.log(url);
-    
+
+  console.log(request.body);
+
+  if (request.body.findBooks[1] === 'title') {url += `+intitle:${request.body.findBooks[0]}`;}
+  if (request.body.findBooks[1] === 'author') {url += `+inauthor:${request.body.findBooks[0]}`;}
+
+  console.log(url);
+
   superagent.get(url)
     .then(results => {
       if (results.body.totalItems === 0) { handleError({status:404}, results);
       }else{
         let bookArray = results.body.items.map((bookData) => {
-      
+
           let book = new Book(bookData.volumeInfo);
           return bookArray;
         });
