@@ -26,7 +26,9 @@ app.set('view engine', 'ejs');
 
 //API Routes
 //Render the  search form
-app.get('/', newSearch);
+app.get('/', (req, res) => {
+  res.render('./pages/index');
+});
 
 //creates a new search to Google Books API
 app.post('/searches', createSearch);
