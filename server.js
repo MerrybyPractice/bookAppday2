@@ -30,6 +30,8 @@ app.get('/', getOneBook);
 
 app.post('/searches/show', createSearch);
 
+app.get('/searches/newSearch', newSearch);
+
 //Catch-all
 
 app.get('*', (request, response)=> response.status(404).send('Get the HELL out of here NOW!'));
@@ -42,9 +44,9 @@ app.listen(PORT, ()=> console.log(`Listening on PORT: ${PORT}`));
 
 //render pages.index
 
-// function newSearch(request, response){
-//   response.render('pages/index');
-// }
+function newSearch(request, response){
+  response.render('./pages/searches/newSearch');
+}
 
 //searching google books, rendering searches
 
