@@ -56,11 +56,9 @@ function createSearch(request, response){
   if (request.body.findBooks[1] === 'title'){url += `+intitle:${request.body.findBooks[0]}`;}
 
   if(request.body.findBooks[1] === 'author'){url += `+inauthor:${request.body.findBooks[0]}`;}
-  console.log('🧛🏻‍', url)
   superagent.get(url)
     .then(apiResponse => apiResponse.body.items.map(bookResult => {
       let book = new Book(bookResult.volumeInfo)
-      console.log(book)
       let sql = `INSERT INTO books (title, img, author, description, ISBN10, ISBN13) VALUES($1, $2, $3, $4, $5, $6);`;
       let newBooks = Object.values(book);
       client.query(sql, newBooks);
@@ -118,16 +116,13 @@ client.on('error', err => console.error(err));
 
 
 function getOneBook(request, response) {
-  console.log('BOOK ID =', request.params);
-
   let SQL = 'SELECT * FROM books;';
 
   return client.query(SQL)
     .then(result => {
-      console.log('single', result.rows);
       return response.render('pages/index', {books: result.rows});
     })
-    .catch(err => handleError(err, result))
+    .catch(err => handleError(err, response))
 }
 
 // // function handleError(error, response){
@@ -135,10 +130,10 @@ function getOneBook(request, response) {
 // //   if
 // // }
 
-// function handleError(error, result){
-//   console.error(error);
-//   if (result) result.status(500).send('Thats an error. So very sorry, something went WRONG.');
-// }
+function handleError(error, result){
+  console.error(error);
+  if (result) result.status(500).send('Thats an error. So very sorry, something went WRONG.');
+}
 
 
 // // //Note that ejs file is not required
