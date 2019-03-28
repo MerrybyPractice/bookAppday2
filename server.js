@@ -52,11 +52,13 @@ function createSearch(request, response){
   if(request.body.findBooks[1] === 'author'){url += `+inauthor:${request.body.findBooks[0]}`;}
 
   superagent.get(url)
+
     .then(apiResponse => apiResponse.body.items.map(bookResult => {
-      let book = new Book(bookResult.volumeInfo)}))
-    .then(results => response.render('pages/searches/show', { searchResults: results}));
-  console.log(response)
-  console.log(book)
+      let book = new Book(bookResult.volumeInfo)
+      console.log(book)
+      return book
+    }))
+    .then(books => response.render('pages/searches/show', { searchResults: books}));
 }
 
 // //book constructor
