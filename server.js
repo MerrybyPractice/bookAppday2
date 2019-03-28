@@ -68,10 +68,12 @@ function createSearch(request, response){
 
 // //book constructor
 
+const regex = /^(http:\/\/)/i;
+
 function Book(bookResult) {
 
   this.title = bookResult.title || 'No Title Available';
-  this.img = bookResult.imageLinks.thumbnail || 'https://i.imgur.com/J5LVHEL.jpg';
+  this.img = bookResult.imageLinks.thumbnail.replace(regex, 'https://') || 'https://i.imgur.com/J5LVHEL.jpg';
   this.description = bookResult.description || 'No one felt the need to describe this. How sad.';
   this.authors = bookResult.authors || 'There is no one who takes credit for this work.';
   // this.isbn10 = bookResult.industryIdentifiers[0].identifier || 'This book was published before 2007 and no one has wanted to republish it after.';
