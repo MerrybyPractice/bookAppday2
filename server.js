@@ -24,7 +24,7 @@ app.set('view engine', 'ejs');
 
 //Renders the Search form
 
-app.get('/', newSearch);
+app.get('/', getOneBook);
 
 //creates a new search to the Google Books API
 
@@ -42,9 +42,9 @@ app.listen(PORT, ()=> console.log(`Listening on PORT: ${PORT}`));
 
 //render pages.index
 
-function newSearch(request, response){
-  response.render('pages/index');
-}
+// function newSearch(request, response){
+//   response.render('pages/index');
+// }
 
 //searching google books, rendering searches
 
@@ -54,13 +54,12 @@ function createSearch(request, response){
   if (request.body.findBooks[1] === 'title'){url += `+intitle:${request.body.findBooks[0]}`;}
 
   if(request.body.findBooks[1] === 'author'){url += `+inauthor:${request.body.findBooks[0]}`;}
-
+  console.log('🧛🏻‍', url)
   superagent.get(url)
     .then(apiResponse => apiResponse.body.items.map(bookResult => {
-      (console.log('In the superagent🧚🏻‍'))
       let book = new Book(bookResult.volumeInfo)
       console.log(book)
-      let sql = `INSERT INTO books (title, author, descriton, ISBN10, ISBN13) VALUES($1, $2, $3, $4, $5);`;
+      let sql = `INSERT INTO books (title, img, author, description, ISBN10, ISBN13) VALUES($1, $2, $3, $4, $5, $6);`;
       let newBooks = Object.values(book);
       client.query(sql, newBooks);
       return book
@@ -76,11 +75,11 @@ const regex = /^(http:\/\/)/i;
 function Book(bookResult) {
 
   this.title = bookResult.title || 'No Title Available';
-  this.img = bookResult.imageLinks.thumbnail.replace(regex, 'https://') || 'https://i.imgur.com/J5LVHEL.jpg';
-  this.description = bookResult.description || 'No one felt the need to describe this. How sad.';
+  this.img = bookResult.imageLinks ? bookResult.imageLinks.thumbnail.replace(regex, 'https://') : 'https://i.imgur.com/J5LVHEL.jpg';
   this.authors = bookResult.authors || 'There is no one who takes credit for this work.';
-  // this.isbn10 = bookResult.industryIdentifiers[0].identifier || 'This book was published before 2007 and no one has wanted to republish it after.';
-  // this.isbn13 = bookResult.industryIdentifiers[1].identifier || 'This book was published after 2007. Has anything good happened after 2007, really?';
+  this.description = bookResult.description ? bookResult.description : 'No one felt the need to describe this. How sad.';
+  this.isbn10 = bookResult.industryIdentifiers[0] ? bookResult.industryIdentifiers[0].identifier :'This book was published after 2007. Has anything good happened after 2007, really?' ;
+  this.isbn13 = bookResult.industryIdentifiers[1]? bookResult.industryIdentifiers[1].identifier : 'This book was published before 2007 and no one has wanted to republish it after.';
 }
 //__________________________________
 //Database Setup
@@ -116,16 +115,15 @@ client.on('error', err => console.error(err));
 
 
 
-function getOneBook(request, result) {
-  console.log('BOOK ID =', request.params.bookapp);
+function getOneBook(request, response) {
+  console.log('BOOK ID =', request.params);
 
-  let SQL = 'SELECT * FROM books WHERE id=$1;';
-  let values = [request.params.bookapp]; 
+  let SQL = 'SELECT * FROM books;';
 
-  return client.query(SQL, values)
+  return client.query(SQL)
     .then(result => {
-      console.log('single', result.rows[0]);
-      return result.render('pages/show', {book: result.rows[0]});
+      console.log('single', result.rows);
+      return response.render('pages/index', {books: result.rows});
     })
     .catch(err => handleError(err, result))
 }
