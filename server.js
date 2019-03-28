@@ -60,6 +60,9 @@ function createSearch(request, response){
       (console.log('In the superagent🧚🏻‍'))
       let book = new Book(bookResult.volumeInfo)
       console.log(book)
+      let sql = `INSERT INTO books (title, author, descriton, ISBN10, ISBN13) VALUES($1, $2, $3, $4, $5);`;
+      let newBooks = Object.values(book);
+      client.query(sql, newBooks);
       return book
     }))
 
@@ -113,19 +116,19 @@ client.on('error', err => console.error(err));
 
 
 
-// // function getOneBook(request, result) {
-// //   console.log('BOOK ID =', request.params.task_id);//TODO: refactor path for books
+function getOneBook(request, result) {
+  console.log('BOOK ID =', request.params.bookapp);
 
-// //   let SQL = 'SELECT * FROM books WHERE id=$1;';
-// //   let values = [request.params.task_id]; //TODO: refactor path for books
+  let SQL = 'SELECT * FROM books WHERE id=$1;';
+  let values = [request.params.bookapp]; 
 
-// //   return client.query(SQL, values)
-// //     .then(result => {
-// //       console.log('single', result.rows[0]);
-// //       return result.render('pages/show', {book: result.rows[0]});
-// //     })
-// //     .catch(err => handleError(err, result))
-// // }
+  return client.query(SQL, values)
+    .then(result => {
+      console.log('single', result.rows[0]);
+      return result.render('pages/show', {book: result.rows[0]});
+    })
+    .catch(err => handleError(err, result))
+}
 
 // // function handleError(error, response){
 // //   response.render('pages/show', {error: 'Thats an error.'})
