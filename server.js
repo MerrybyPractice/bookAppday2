@@ -47,13 +47,16 @@ function newSearch(request, response){
 function createSearch(request, response){
   let url = 'https://www.googleapis.com/books/v1/volumes?q=';
 
-  if (request.body.search[1] === 'title'){url += `+intitle:${request.body.search[0]}`;}
+  if (request.body.findBooks[1] === 'title'){url += `+intitle:${request.body.findBooks[0]}`;}
 
-  if(request.body.search[1] === 'author'){url += `+inauthor:${request.body.search[0]}`;}
+  if(request.body.findBooks[1] === 'author'){url += `+inauthor:${request.body.findBooks[0]}`;}
 
   superagent.get(url)
-    .then(apiResponse => apiResponse.body.items.map(bookResult => new Book(bookResult.volumeInfo)))
+    .then(apiResponse => apiResponse.body.items.map(bookResult => {
+      let book = new Book(bookResult.volumeInfo)}))
     .then(results => response.render('pages/searches/show', { searchResults: results}));
+  console.log(response)
+  console.log(book)
 }
 
 // //book constructor
@@ -64,15 +67,10 @@ function Book(bookResult) {
   this.img = bookResult.imageLinks.thumbnail || 'https://i.imgur.com/J5LVHEL.jpg';
   this.description = bookResult.description || 'No one felt the need to describe this. How sad.';
   this.authors = bookResult.authors || 'There is no one who takes credit for this work.';
-  this.isbn10 = bookResult.industryIdentifiers[0].identifiers || 'This book was published before 2007 and no one has wanted to republish it after.This book was published after 2007!';
-  this.isbn13 = bookResult.industryIdentifiers[1].identifiers || 'This book was published after 2007. Has anything good happened after 2007, really?';
+  // this.isbn10 = bookResult.industryIdentifiers[0].identifier || 'This book was published before 2007 and no one has wanted to republish it after.';
+  // this.isbn13 = bookResult.industryIdentifiers[1].identifier || 'This book was published after 2007. Has anything good happened after 2007, really?';
 }
-
-
-// //Middleware
-// app.use(express.urlencoded({ extended : true}));
-// app.use(express.static('public'));
-
+//----------------------------------
 // //Database Setup
 
 // const client = new pg.Client(process.env.DATABASE_URL);
@@ -81,15 +79,6 @@ function Book(bookResult) {
 
 // //Set the view engine for server-side templating
 // app.set('view engine', 'ejs');
-
-// //API Routes
-// //Render the  search form
-// app.get('/', (req, res) => {
-//   res.render('./pages/index');
-// });
-
-// //Helper Functions:
-
 
 // //run out to get the books and bring them back from the data base
 
@@ -103,6 +92,18 @@ function Book(bookResult) {
 // //     })
 // //     .catch(handleError);
 // // }
+
+
+
+// //API Routes
+// //Render the  search form
+// app.get('/', (req, res) => {
+//   res.render('./pages/index');
+// });
+
+// //Helper Functions:
+
+
 
 // // function getOneBook(request, result) {
 // //   console.log('BOOK ID =', request.params.task_id);//TODO: refactor path for books
@@ -134,33 +135,4 @@ function Book(bookResult) {
 // //   results.render('pages/index');
 // // }
 
-// //No API key required
-// //console.log request.body and request.body.search
-// function createSearch(request, results) {
-//   let url = `https:///www.googleapis.com/books/v1/volumes?q=in`;
-//   console.log(url);
-
-//   console.log(request.body);
-
-//   if (request.body.findBooks[1] === 'title') {url += `+intitle:${request.body.findBooks[0]}`;}
-//   if (request.body.findBooks[1] === 'author') {url += `+inauthor:${request.body.findBooks[0]}`;}
-
-//   console.log(url);
-
-//   superagent.get(url)
-//     .then(results => {
-//       if (results.body.totalItems === 0) { handleError({status:404}, results);
-//       }else{
-//         let bookArray = results.body.items.map((bookData) => {
-
-//           let book = new Book(bookData.volumeInfo);
-//           return bookArray;
-//         });
-//       }
-//       const pathToBook = results.body.items.volumeInfo
-//       return pathToBook
-//     })
-//     .then(results => results.render('pages/searches/show', { searchReults: bookArray }));
-//   //.catch(err => (handleError(err, response));
-// }
 
