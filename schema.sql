@@ -5,6 +5,7 @@ CREATE TABLE books (
     img TEXT,
     author VARCHAR(355),
     description TEXT,
+    bookshelf VARCHAR(100),
     ISBN10 VARCHAR(100),
     ISBN13 VARCHAR(100)
 );
