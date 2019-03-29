@@ -9,6 +9,7 @@
     <title>Book App</title>
 </head>
 <body>
+    <%- include('../layouts/nav.ejs') -%>
 
 <p> Count: <%= books.length %> </p>
  <%- include('../layouts/resultFormat', {books:books}) %>
