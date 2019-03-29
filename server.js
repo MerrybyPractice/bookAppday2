@@ -34,6 +34,8 @@ app.get('/searches/newSearch', newSearch);
 
 app.get('/bookShelf', addBook);
 
+app.get('/searches/showOne', getOneBook);
+
 
 //Catch-all
 
@@ -72,12 +74,23 @@ function createSearch(request, response){
 }
 
 function addBook(request, response) {
-  let { title, img, author, description, bookShelf, ISBN10, ISBN13, contact} = request.body;
-  let SQL = 'INSERT INTO task(title, img, author, description, bookShelf, ISBN10, ISBN13, conact) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);';
-  let values = [title, img, author, description, bookShelf, ISBN10, ISBN13, contact];
+  let SQL = `SELECT bookShelf from books;`;
 
+  return client.query(SQL)
+    .then(results => {
+      response.render('./pages/bookShelf', {results: results.rows})
+    })
+    .catch(handleError);
+}
+
+function getOneBook(request, response) {
+  let SQL = `SELECT * FROM books WHERE id=$1;`;
+  let values = [request.params.bookShelf];
   return client.query(SQL, values)
-    .then 
+    .then(result => {
+      return response.render('pages/searches/showOne', {books:result.rows[0]});
+    })
+    .catch(err => handleError(err, response));
 }
 
 
